@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ImageSlot from "@/components/ImageSlot";
+import { useMutation, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
+import MediaSlotTile from "@/components/MediaSlotTile";
 
 type Section = "dashboard" | "content" | "services" | "bookings" | "media";
 
@@ -14,44 +18,38 @@ const NAV: { key: Section; label: string }[] = [
   { key: "media", label: "Media Library" },
 ];
 
-type Service = { name: string; category: string; active: boolean };
-
-const INITIAL_SERVICES: Service[] = [
-  { name: "Mobile App Development", category: "IT Services", active: true },
-  { name: "Digital Presence Audit", category: "IT Services", active: true },
-  { name: "Algebra Tutoring", category: "Tutoring", active: true },
-  { name: "Trigonometry Tutoring", category: "Tutoring", active: true },
-  { name: "ESL", category: "Tutoring", active: true },
-  { name: "Virginia SOL Prep", category: "Exam Prep", active: true },
-  { name: "SAT Prep", category: "Exam Prep", active: true },
-  { name: "Lesson Plan Development", category: "Educator Support", active: true },
-  { name: "IEP Navigation", category: "Special Education", active: false },
-];
-
-const BOOKINGS = [
-  { date: "Aug 10", time: "10:00 AM", type: "IT Consultation", client: "R. Nguyen", status: "Confirmed" },
-  { date: "Aug 11", time: "2:30 PM", type: "Tutoring Trial", client: "M. Alvarez (parent)", status: "Confirmed" },
-  { date: "Aug 12", time: "9:00 AM", type: "IEP Review", client: "T. Brooks", status: "Pending" },
-  { date: "Aug 13", time: "1:00 PM", type: "IT Consultation", client: "J. Park", status: "Confirmed" },
-];
+const INQUIRY_TYPE_LABELS: Record<string, string> = {
+  it: "IT Consultation",
+  tutoring: "Tutoring Trial",
+  iep: "IEP Review",
+};
 
 export default function AdminClient() {
   const [section, setSection] = useState<Section>("dashboard");
-  const [heroHeadline, setHeroHeadline] = useState(
-    "Bespoke software for your business. Specialized tutoring for your student."
-  );
-  const [heroSub, setHeroSub] = useState(
-    "One team, two disciplines: custom mobile apps and digital growth strategy for companies, plus K-12 tutoring and IEP navigation for students."
-  );
-  const [saveLabel, setSaveLabel] = useState("Save changes");
-  const [services, setServices] = useState(INITIAL_SERVICES);
+  const { signOut } = useAuthActions();
+  const router = useRouter();
 
-  const toggleService = (i: number) => {
-    setServices((prev) => {
-      const next = prev.slice();
-      next[i] = { ...next[i], active: !next[i].active };
-      return next;
-    });
+  const bookingCount = useQuery(api.bookings.count);
+  const unreadMessages = useQuery(api.messages.unreadCount);
+  const activeServiceCount = useQuery(api.services.activeCount);
+
+  const heroContent = useQuery(api.pageContent.getHome);
+  const updateHome = useMutation(api.pageContent.updateHome);
+  const [heroHeadline, setHeroHeadline] = useState<string | null>(null);
+  const [heroSub, setHeroSub] = useState<string | null>(null);
+  const [saveLabel, setSaveLabel] = useState("Save changes");
+  const headlineValue = heroHeadline ?? heroContent?.heroHeadline ?? "";
+  const subValue = heroSub ?? heroContent?.heroSub ?? "";
+
+  const services = useQuery(api.services.list);
+  const toggleService = useMutation(api.services.toggle);
+  const addService = useMutation(api.services.add);
+
+  const bookings = useQuery(api.bookings.list);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/admin/sign-in");
   };
 
   return (
@@ -114,9 +112,14 @@ export default function AdminClient() {
             {n.label}
           </button>
         ))}
-        <Link href="/" className="btn btn-ghost" style={{ justifyContent: "flex-start", marginTop: "auto" }}>
-          ← Back to site
-        </Link>
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+          <Link href="/" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            ← Back to site
+          </Link>
+          <button onClick={handleSignOut} className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            Sign out
+          </button>
+        </div>
       </aside>
 
       <main style={{ padding: "var(--space-6) var(--space-6)" }}>
@@ -127,19 +130,19 @@ export default function AdminClient() {
               <div className="card elev-sm">
                 <span className="card-kicker">Upcoming bookings</span>
                 <h3 className="card-title" style={{ fontSize: 26 }}>
-                  12
+                  {bookingCount ?? "…"}
                 </h3>
               </div>
               <div className="card elev-sm">
                 <span className="card-kicker">New messages</span>
                 <h3 className="card-title" style={{ fontSize: 26 }}>
-                  4
+                  {unreadMessages ?? "…"}
                 </h3>
               </div>
               <div className="card elev-sm">
                 <span className="card-kicker">Active service listings</span>
                 <h3 className="card-title" style={{ fontSize: 26 }}>
-                  10
+                  {activeServiceCount ?? "…"}
                 </h3>
               </div>
             </div>
@@ -154,7 +157,7 @@ export default function AdminClient() {
           <>
             <h2 style={{ marginBottom: "var(--space-2)" }}>Page Content</h2>
             <p className="text-muted" style={{ fontSize: 13, marginBottom: "var(--space-4)" }}>
-              Edit homepage copy. Changes save automatically.
+              Edit homepage copy.
             </p>
             <div className="card elev-sm" style={{ maxWidth: 640, gap: "var(--space-3)" }}>
               <div className="field">
@@ -162,7 +165,7 @@ export default function AdminClient() {
                 <input
                   id="hh"
                   className="input"
-                  value={heroHeadline}
+                  value={headlineValue}
                   onChange={(e) => {
                     setHeroHeadline(e.target.value);
                     setSaveLabel("Save changes");
@@ -174,14 +177,21 @@ export default function AdminClient() {
                 <textarea
                   id="hs"
                   className="input"
-                  value={heroSub}
+                  value={subValue}
                   onChange={(e) => {
                     setHeroSub(e.target.value);
                     setSaveLabel("Save changes");
                   }}
                 />
               </div>
-              <button className="btn btn-primary" style={{ alignSelf: "flex-start" }} onClick={() => setSaveLabel("Saved ✓")}>
+              <button
+                className="btn btn-primary"
+                style={{ alignSelf: "flex-start" }}
+                onClick={async () => {
+                  await updateHome({ heroHeadline: headlineValue, heroSub: subValue });
+                  setSaveLabel("Saved ✓");
+                }}
+              >
                 {saveLabel}
               </button>
             </div>
@@ -192,7 +202,17 @@ export default function AdminClient() {
           <>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
               <h2 style={{ marginBottom: 0 }}>Service Listings</h2>
-              <button className="btn btn-primary">+ Add listing</button>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  const name = window.prompt("Service name?");
+                  if (!name) return;
+                  const category = window.prompt("Category?") || "General";
+                  addService({ name, category });
+                }}
+              >
+                + Add listing
+              </button>
             </div>
             <table className="table">
               <thead>
@@ -204,8 +224,8 @@ export default function AdminClient() {
                 </tr>
               </thead>
               <tbody>
-                {services.map((s, i) => (
-                  <tr key={s.name}>
+                {(services ?? []).map((s) => (
+                  <tr key={s._id}>
                     <td>{s.name}</td>
                     <td>{s.category}</td>
                     <td>
@@ -214,7 +234,7 @@ export default function AdminClient() {
                       </span>
                     </td>
                     <td>
-                      <button className="btn btn-ghost" onClick={() => toggleService(i)}>
+                      <button className="btn btn-ghost" onClick={() => toggleService({ id: s._id })}>
                         {s.active ? "Hide" : "Show"}
                       </button>
                     </td>
@@ -239,17 +259,28 @@ export default function AdminClient() {
                 </tr>
               </thead>
               <tbody>
-                {BOOKINGS.map((b, i) => (
-                  <tr key={i}>
-                    <td>{b.date}</td>
-                    <td>{b.time}</td>
-                    <td>{b.type}</td>
-                    <td>{b.client}</td>
+                {(bookings ?? []).map((b) => (
+                  <tr key={b._id}>
+                    <td>{b.dayLabel}</td>
+                    <td>{b.slot}</td>
+                    <td>{INQUIRY_TYPE_LABELS[b.inquiryType] ?? b.inquiryType}</td>
                     <td>
-                      <span className="tag tag-accent">{b.status}</span>
+                      {b.name} ({b.email})
+                    </td>
+                    <td>
+                      <span className="tag tag-accent">
+                        {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+                      </span>
                     </td>
                   </tr>
                 ))}
+                {bookings && bookings.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-muted">
+                      No bookings yet.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </>
@@ -259,21 +290,13 @@ export default function AdminClient() {
           <>
             <h2 style={{ marginBottom: "var(--space-2)" }}>Media Library</h2>
             <p className="text-muted" style={{ fontSize: 13, marginBottom: "var(--space-4)" }}>
-              Drag and drop to upload or replace images used across the site.
+              Click a tile to upload or replace images used across the site.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "var(--space-4)" }}>
-              <div style={{ aspectRatio: "1", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-                <ImageSlot placeholder="Homepage hero" />
-              </div>
-              <div style={{ aspectRatio: "1", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-                <ImageSlot placeholder="Founder photo" />
-              </div>
-              <div style={{ aspectRatio: "1", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-                <ImageSlot placeholder="Chairwoman photo" />
-              </div>
-              <div style={{ aspectRatio: "1", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-                <ImageSlot placeholder="Add new asset" />
-              </div>
+              <MediaSlotTile slotKey="hero-photo" label="Homepage hero" />
+              <MediaSlotTile slotKey="founder-photo" label="Founder photo" />
+              <MediaSlotTile slotKey="chair-photo" label="Chairwoman photo" />
+              <MediaSlotTile slotKey="general-1" label="Add new asset" />
             </div>
           </>
         )}

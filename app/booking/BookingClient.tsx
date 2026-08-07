@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -42,6 +44,7 @@ function buildDays(): Day[] {
 
 export default function BookingClient() {
   const days = useMemo(buildDays, []);
+  const createBooking = useMutation(api.bookings.create);
   const [inquiry, setInquiry] = useState<Inquiry>("it");
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [selectedDayLabel, setSelectedDayLabel] = useState("");
@@ -50,6 +53,8 @@ export default function BookingClient() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const selectDay = (d: Day) => {
     setSelectedDayKey(d.key);
@@ -59,9 +64,27 @@ export default function BookingClient() {
 
   const confirmationText = `You're set for ${INQUIRY_LABELS[inquiry]} on ${selectedDayLabel} at ${selectedSlot}.`;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (!selectedDayKey || !selectedSlot) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await createBooking({
+        inquiryType: inquiry,
+        dayKey: selectedDayKey,
+        dayLabel: selectedDayLabel,
+        slot: selectedSlot,
+        name,
+        email,
+        phone: phone || undefined,
+      });
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong submitting your booking. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -83,7 +106,7 @@ export default function BookingClient() {
               {confirmationText}
             </p>
             <p className="text-muted" style={{ fontSize: 13 }}>
-              A confirmation email is on its way to {email}.
+              We&apos;ll be in touch at {email} to confirm.
             </p>
             <Link href="/" className="btn btn-secondary" style={{ alignSelf: "flex-start" }}>
               Back to home
@@ -163,8 +186,18 @@ export default function BookingClient() {
                     <label htmlFor="bphone">Phone</label>
                     <input id="bphone" type="tel" className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
                   </div>
-                  <button type="submit" className="btn btn-primary" style={{ gridColumn: "span 2", justifySelf: "start" }}>
-                    Confirm booking
+                  {error && (
+                    <p style={{ gridColumn: "span 2", color: "var(--color-accent-2-700)", fontSize: 13, margin: 0 }}>
+                      {error}
+                    </p>
+                  )}
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={submitting}
+                    style={{ gridColumn: "span 2", justifySelf: "start" }}
+                  >
+                    {submitting ? "Booking…" : "Confirm booking"}
                   </button>
                 </form>
               </>

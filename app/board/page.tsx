@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ImageSlot from "@/components/ImageSlot";
+import PublicImageSlot from "@/components/PublicImageSlot";
 
 export const metadata: Metadata = {
   title: "Board of Directors",
@@ -32,7 +33,7 @@ export default function Board() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-6)", marginBottom: "var(--space-8)" }}>
           <div className="card elev-md" style={{ flexDirection: "row", gap: "var(--space-4)", padding: "var(--space-4)" }}>
             <div className="halftone" style={{ width: 120, height: 120, flex: "none", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-              <ImageSlot placeholder="Founder photo" />
+              <PublicImageSlot slotKey="founder-photo" placeholder="Founder photo" />
             </div>
             <div>
               <span className="card-kicker">Founder</span>
@@ -50,7 +51,7 @@ export default function Board() {
           </div>
           <div className="card elev-md" style={{ flexDirection: "row", gap: "var(--space-4)", padding: "var(--space-4)" }}>
             <div className="halftone" style={{ width: 120, height: 120, flex: "none", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-              <ImageSlot placeholder="Chairwoman photo" />
+              <PublicImageSlot slotKey="chair-photo" placeholder="Chairwoman photo" />
             </div>
             <div>
               <span className="card-kicker" style={{ color: "var(--color-accent-2)" }}>

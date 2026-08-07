@@ -1,20 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 
+type InquiryType = "it" | "academic" | "iep" | "other";
+
 export default function ContactClient() {
+  const sendMessage = useMutation(api.messages.send);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [inquiryType, setInquiryType] = useState("it");
+  const [inquiryType, setInquiryType] = useState<InquiryType>("it");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setSubmitting(true);
+    setError(null);
+    try {
+      await sendMessage({
+        name,
+        email,
+        phone: phone || undefined,
+        inquiryType,
+        message,
+      });
+      setSent(true);
+    } catch {
+      setError("Something went wrong sending your message. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -52,7 +74,12 @@ export default function ContactClient() {
               </div>
               <div className="field">
                 <label htmlFor="ctype">Inquiry type</label>
-                <select id="ctype" className="input" value={inquiryType} onChange={(e) => setInquiryType(e.target.value)}>
+                <select
+                  id="ctype"
+                  className="input"
+                  value={inquiryType}
+                  onChange={(e) => setInquiryType(e.target.value as InquiryType)}
+                >
                   <option value="it">IT Services</option>
                   <option value="academic">Academic / Tutoring</option>
                   <option value="iep">IEP / Special Education</option>
@@ -63,8 +90,11 @@ export default function ContactClient() {
                 <label htmlFor="cmsg">Message</label>
                 <textarea id="cmsg" className="input" required value={message} onChange={(e) => setMessage(e.target.value)} />
               </div>
-              <button type="submit" className="btn btn-primary" style={{ alignSelf: "flex-start" }}>
-                Send message
+              {error && (
+                <p style={{ color: "var(--color-accent-2-700)", fontSize: 13, margin: 0 }}>{error}</p>
+              )}
+              <button type="submit" className="btn btn-primary" disabled={submitting} style={{ alignSelf: "flex-start" }}>
+                {submitting ? "Sending…" : "Send message"}
               </button>
             </form>
           )}
