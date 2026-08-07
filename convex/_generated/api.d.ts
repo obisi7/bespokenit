@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as bookings from "../bookings.js";
+import type * as email from "../email.js";
 import type * as http from "../http.js";
 import type * as init from "../init.js";
 import type * as media from "../media.js";
@@ -26,6 +27,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   bookings: typeof bookings;
+  email: typeof email;
   http: typeof http;
   init: typeof init;
   media: typeof media;

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 
 export const send = mutation({
   args: {
@@ -16,7 +17,12 @@ export const send = mutation({
     message: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("messages", { ...args, read: false });
+    const id = await ctx.db.insert("messages", { ...args, read: false });
+    await ctx.scheduler.runAfter(0, internal.email.sendContactAck, {
+      email: args.email,
+      name: args.name,
+    });
+    return id;
   },
 });
 

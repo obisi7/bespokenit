@@ -1,6 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
+
+const INQUIRY_LABELS: Record<string, string> = {
+  it: "an IT Consultation",
+  tutoring: "a Tutoring Trial",
+  iep: "an IEP Review",
+};
 
 export const create = mutation({
   args: {
@@ -13,7 +20,15 @@ export const create = mutation({
     phone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("bookings", { ...args, status: "confirmed" });
+    const id = await ctx.db.insert("bookings", { ...args, status: "confirmed" });
+    await ctx.scheduler.runAfter(0, internal.email.sendBookingConfirmation, {
+      email: args.email,
+      name: args.name,
+      inquiryLabel: INQUIRY_LABELS[args.inquiryType],
+      dayLabel: args.dayLabel,
+      slot: args.slot,
+    });
+    return id;
   },
 });
 

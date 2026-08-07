@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
@@ -27,11 +27,12 @@ const INQUIRY_TYPE_LABELS: Record<string, string> = {
 export default function AdminClient() {
   const [section, setSection] = useState<Section>("dashboard");
   const { signOut } = useAuthActions();
+  const { isAuthenticated } = useConvexAuth();
   const router = useRouter();
 
-  const bookingCount = useQuery(api.bookings.count);
-  const unreadMessages = useQuery(api.messages.unreadCount);
-  const activeServiceCount = useQuery(api.services.activeCount);
+  const bookingCount = useQuery(api.bookings.count, isAuthenticated ? {} : "skip");
+  const unreadMessages = useQuery(api.messages.unreadCount, isAuthenticated ? {} : "skip");
+  const activeServiceCount = useQuery(api.services.activeCount, isAuthenticated ? {} : "skip");
 
   const heroContent = useQuery(api.pageContent.getHome);
   const updateHome = useMutation(api.pageContent.updateHome);
@@ -41,11 +42,11 @@ export default function AdminClient() {
   const headlineValue = heroHeadline ?? heroContent?.heroHeadline ?? "";
   const subValue = heroSub ?? heroContent?.heroSub ?? "";
 
-  const services = useQuery(api.services.list);
+  const services = useQuery(api.services.list, isAuthenticated ? {} : "skip");
   const toggleService = useMutation(api.services.toggle);
   const addService = useMutation(api.services.add);
 
-  const bookings = useQuery(api.bookings.list);
+  const bookings = useQuery(api.bookings.list, isAuthenticated ? {} : "skip");
 
   const handleSignOut = async () => {
     await signOut();

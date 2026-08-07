@@ -106,7 +106,7 @@ export default function BookingClient() {
               {confirmationText}
             </p>
             <p className="text-muted" style={{ fontSize: 13 }}>
-              We&apos;ll be in touch at {email} to confirm.
+              A confirmation email is on its way to {email}.
             </p>
             <Link href="/" className="btn btn-secondary" style={{ alignSelf: "flex-start" }}>
               Back to home
