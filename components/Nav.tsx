@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
+  { href: "/", label: "Home" },
   { href: "/it-services", label: "IT Solutions" },
   { href: "/tutoring", label: "Tutoring & IEP" },
   { href: "/board", label: "Board" },
@@ -70,7 +71,7 @@ export default function Nav() {
           ))}
           <Link
             href="/booking"
-            className="btn btn-primary"
+            className={`btn ${pathname === "/booking" ? "btn-primary" : "btn-secondary"}`}
             aria-current={pathname === "/booking" ? "page" : undefined}
             style={{ fontSize: 13, padding: "8px 14px" }}
           >

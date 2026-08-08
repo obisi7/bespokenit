@@ -250,18 +250,12 @@ textarea.input { min-height: 90px; resize: vertical; }
 /* the primary button living inside .nav must always keep light text on
    its accent fill — `.nav a { color: inherit }` otherwise wins on
    specificity and silently darkens it (see design handoff README,
-   Known Issues) */
+   Known Issues). The Book a Consultation link only carries .btn-primary
+   when /booking is the active page (see Nav.tsx); otherwise it renders
+   as .btn-secondary, so its fill state doubles as the active indicator. */
 .nav a.btn-primary,
-.nav a.btn-primary:hover,
-.nav a.btn-primary[aria-current="page"] {
+.nav a.btn-primary:hover {
   color: var(--color-bg);
-}
-/* the CTA button is always filled green (it's a permanent call-to-action,
-   not a page-location indicator) — add a ring only when it IS the active
-   page, so "you are here" stays legible instead of looking permanently
-   stuck on */
-.nav a.btn-primary[aria-current="page"] {
-  box-shadow: 0 0 0 2px var(--color-accent-800);
 }
 
 /* — tables — */

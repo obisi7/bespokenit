@@ -295,6 +295,8 @@ export default function AdminClient() {
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "var(--space-4)" }}>
               <MediaSlotTile slotKey="hero-photo" label="Homepage hero" />
+              <MediaSlotTile slotKey="it-services-hero" label="IT Solutions hero" />
+              <MediaSlotTile slotKey="tutoring-hero" label="Tutoring & IEP hero" />
               <MediaSlotTile slotKey="founder-photo" label="Founder photo" />
               <MediaSlotTile slotKey="chair-photo" label="Chairwoman photo" />
               <MediaSlotTile slotKey="general-1" label="Add new asset" />

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import PublicImageSlot from "@/components/PublicImageSlot";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -23,25 +24,43 @@ export default function Tutoring() {
     <>
       <Nav />
       <main>
-        <section style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-8) var(--space-4) var(--space-6)" }}>
-          <p className="tag tag-accent-2" style={{ marginBottom: "var(--space-3)" }}>
-            Tutoring &amp; IEP Services
-          </p>
-          <h1 style={{ maxWidth: "22ch", textWrap: "pretty" }}>
-            K-12 tutoring, exam prep, and special-education guidance built around your student.
-          </h1>
-          <p style={{ maxWidth: "56ch", fontSize: 16, opacity: 0.85 }}>
-            One-on-one and small-group instruction in math and English, targeted Virginia SOL and
-            SAT prep, and hands-on support for educators and families navigating IEPs and
-            learning disabilities.
-          </p>
-          <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", marginTop: "var(--space-2)" }}>
-            <Link href="/booking" className="btn btn-primary">
-              Book a Trial Session
-            </Link>
-            <Link href="#iep" className="btn btn-secondary">
-              IEP &amp; Special Education
-            </Link>
+        <section
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "var(--space-8) var(--space-4) var(--space-6)",
+            display: "grid",
+            gridTemplateColumns: "1.15fr 1fr",
+            gap: "var(--space-6)",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <p className="tag tag-accent-2" style={{ marginBottom: "var(--space-3)" }}>
+              Tutoring &amp; IEP Services
+            </p>
+            <h1 style={{ maxWidth: "22ch", textWrap: "pretty" }}>
+              K-12 tutoring, exam prep, and special-education guidance built around your student.
+            </h1>
+            <p style={{ maxWidth: "56ch", fontSize: 16, opacity: 0.85 }}>
+              One-on-one and small-group instruction in math and English, targeted Virginia SOL
+              and SAT prep, and hands-on support for educators and families navigating IEPs and
+              learning disabilities.
+            </p>
+            <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", marginTop: "var(--space-2)" }}>
+              <Link href="/booking" className="btn btn-primary">
+                Book a Trial Session
+              </Link>
+              <Link href="#iep" className="btn btn-secondary">
+                IEP &amp; Special Education
+              </Link>
+            </div>
+          </div>
+          <div className="halftone" style={{ aspectRatio: "4/3", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+            <PublicImageSlot
+              slotKey="tutoring-hero"
+              placeholder="Recommended: a tutor working one-on-one with a student, or a small study group"
+            />
           </div>
         </section>
 

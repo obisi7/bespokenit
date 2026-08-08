@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import PublicImageSlot from "@/components/PublicImageSlot";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -12,20 +13,38 @@ export default function ItServices() {
     <>
       <Nav />
       <main>
-        <section style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-8) var(--space-4) var(--space-6)" }}>
-          <p className="tag tag-accent" style={{ marginBottom: "var(--space-3)" }}>
-            Bespoke IT Services
-          </p>
-          <h1 style={{ maxWidth: "20ch", textWrap: "pretty" }}>
-            Custom software and digital strategy built to grow revenue.
-          </h1>
-          <p style={{ maxWidth: "56ch", fontSize: 16, opacity: 0.85 }}>
-            We design and build mobile apps for iOS and Android, and we audit your digital
-            presence to find exactly where customers are dropping off — then fix it.
-          </p>
-          <Link href="/booking" className="btn btn-primary" style={{ marginTop: "var(--space-2)" }}>
-            Book an IT Consultation
-          </Link>
+        <section
+          style={{
+            maxWidth: 1280,
+            margin: "0 auto",
+            padding: "var(--space-8) var(--space-4) var(--space-6)",
+            display: "grid",
+            gridTemplateColumns: "1.15fr 1fr",
+            gap: "var(--space-6)",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <p className="tag tag-accent" style={{ marginBottom: "var(--space-3)" }}>
+              Bespoke IT Services
+            </p>
+            <h1 style={{ maxWidth: "20ch", textWrap: "pretty" }}>
+              Custom software and digital strategy built to grow revenue.
+            </h1>
+            <p style={{ maxWidth: "56ch", fontSize: 16, opacity: 0.85 }}>
+              We design and build mobile apps for iOS and Android, and we audit your digital
+              presence to find exactly where customers are dropping off — then fix it.
+            </p>
+            <Link href="/booking" className="btn btn-primary" style={{ marginTop: "var(--space-2)" }}>
+              Book an IT Consultation
+            </Link>
+          </div>
+          <div className="halftone" style={{ aspectRatio: "4/3", borderRadius: "var(--radius-lg)", overflow: "hidden" }}>
+            <PublicImageSlot
+              slotKey="it-services-hero"
+              placeholder="Recommended: team collaborating on a mobile app build, or a before/after of a digital audit"
+            />
+          </div>
         </section>
 
         <section style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-6) var(--space-4)" }}>
