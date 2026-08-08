@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import PublicImageSlot from "@/components/PublicImageSlot";
+import AppsGrid from "@/components/AppsGrid";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -116,6 +117,8 @@ export default function ItServices() {
             </div>
           </div>
         </section>
+
+        <AppsGrid />
 
         <section style={{ maxWidth: 1280, margin: "0 auto", padding: "var(--space-6) var(--space-4) var(--space-8)" }}>
           <blockquote style={{ margin: 0, fontStyle: "italic", fontSize: 20, maxWidth: "60ch" }}>

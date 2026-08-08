@@ -7,13 +7,15 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import MediaSlotTile from "@/components/MediaSlotTile";
+import AppEditorCard from "@/components/AppEditorCard";
 
-type Section = "dashboard" | "content" | "services" | "bookings" | "media";
+type Section = "dashboard" | "content" | "services" | "apps" | "bookings" | "media";
 
 const NAV: { key: Section; label: string }[] = [
   { key: "dashboard", label: "Dashboard" },
   { key: "content", label: "Page Content" },
   { key: "services", label: "Service Listings" },
+  { key: "apps", label: "Mobile Apps" },
   { key: "bookings", label: "Bookings" },
   { key: "media", label: "Media Library" },
 ];
@@ -47,6 +49,9 @@ export default function AdminClient() {
   const addService = useMutation(api.services.add);
 
   const bookings = useQuery(api.bookings.list, isAuthenticated ? {} : "skip");
+
+  const apps = useQuery(api.apps.list);
+  const addApp = useMutation(api.apps.add);
 
   const handleSignOut = async () => {
     await signOut();
@@ -243,6 +248,33 @@ export default function AdminClient() {
                 ))}
               </tbody>
             </table>
+          </>
+        )}
+
+        {section === "apps" && (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+              <h2 style={{ marginBottom: 0 }}>Mobile Apps</h2>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  const name = window.prompt("App name?");
+                  if (!name) return;
+                  const description = window.prompt("Short description?") || "";
+                  addApp({ name, description });
+                }}
+              >
+                + Add app
+              </button>
+            </div>
+            <p className="text-muted" style={{ fontSize: 13, marginBottom: "var(--space-4)" }}>
+              Shown on the IT Solutions page with QR codes for iOS/Android download.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "var(--space-4)" }}>
+              {(apps ?? []).map((app) => (
+                <AppEditorCard key={app._id} app={app} />
+              ))}
+            </div>
           </>
         )}
 

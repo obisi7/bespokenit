@@ -48,4 +48,10 @@ export default defineSchema({
     storageId: v.id("_storage"),
     label: v.string(),
   }).index("by_slot", ["slotKey"]),
+
+  apps: defineTable({
+    name: v.string(),
+    description: v.string(),
+    order: v.number(),
+  }),
 });

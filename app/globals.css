@@ -236,23 +236,10 @@ textarea.input { min-height: 90px; resize: vertical; }
   font-size: 18px; margin-right: auto;
 }
 .nav a { color: inherit; text-decoration: none; font-size: 14px; }
-.nav a:hover { color: var(--color-accent); }
-/* active-page indicator for the plain text links: a filled pill, not just
-   a text-color shift, so it reads clearly next to the always-green CTA
-   button below */
-.nav a[aria-current="page"]:not(.btn-primary) {
-  color: var(--color-accent-800);
-  background: var(--color-accent-100);
-  border-radius: var(--radius-md);
-  padding: 4px 10px;
-  margin: -4px -10px;
-}
-/* the primary button living inside .nav must always keep light text on
-   its accent fill — `.nav a { color: inherit }` otherwise wins on
-   specificity and silently darkens it (see design handoff README,
-   Known Issues). The Book a Consultation link only carries .btn-primary
-   when /booking is the active page (see Nav.tsx); otherwise it renders
-   as .btn-secondary, so its fill state doubles as the active indicator. */
+/* every nav item (including Book a Consultation) is a .btn now: outlined
+   by default, filled when it's the active page — consistent active-state
+   treatment across the whole bar, tied directly to className in Nav.tsx
+   rather than a separate color/pill rule per link type. */
 .nav a.btn-primary,
 .nav a.btn-primary:hover {
   color: var(--color-bg);

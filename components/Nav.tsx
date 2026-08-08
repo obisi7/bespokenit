@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/tutoring", label: "Tutoring & IEP" },
   { href: "/board", label: "Board" },
   { href: "/contact", label: "Contact" },
+  { href: "/booking", label: "Book a Consultation" },
 ];
 
 export default function Nav() {
@@ -59,24 +60,20 @@ export default function Nav() {
             fontSize: 13,
           }}
         >
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={pathname === link.href ? "page" : undefined}
-              style={{ fontSize: 13 }}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link
-            href="/booking"
-            className={`btn ${pathname === "/booking" ? "btn-primary" : "btn-secondary"}`}
-            aria-current={pathname === "/booking" ? "page" : undefined}
-            style={{ fontSize: 13, padding: "8px 14px" }}
-          >
-            Book a Consultation
-          </Link>
+          {LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`btn ${isActive ? "btn-primary" : "btn-secondary"}`}
+                style={{ fontSize: 13, padding: "8px 14px" }}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </header>
