@@ -49,7 +49,7 @@ export default function AppEditorCard({ app }: { app: Doc<"apps"> }) {
           }}
         />
       </div>
-      <div style={{ display: "flex", gap: "var(--space-4)" }}>
+      <div style={{ display: "flex", gap: "var(--space-8)" }}>
         <div style={{ width: 120 }}>
           <MediaSlotTile slotKey={`qr-${app._id}-ios`} label="iOS QR" />
           <p className="text-muted" style={{ fontSize: 11, textAlign: "center", margin: "4px 0 0" }}>

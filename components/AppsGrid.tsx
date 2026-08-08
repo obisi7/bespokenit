@@ -28,8 +28,8 @@ export default function AppsGrid() {
             <p className="card-body" style={{ fontSize: 13 }}>
               {app.description}
             </p>
-            <div style={{ display: "flex", gap: "var(--space-3)" }}>
-              <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", gap: "var(--space-8)", justifyContent: "center" }}>
+              <div style={{ width: 110, flex: "none" }}>
                 <div style={{ aspectRatio: "1", borderRadius: "var(--radius-md)", overflow: "hidden", marginBottom: 4 }}>
                   <PublicImageSlot slotKey={`qr-${app._id}-ios`} placeholder="iOS QR code" />
                 </div>
@@ -37,7 +37,7 @@ export default function AppsGrid() {
                   iOS
                 </p>
               </div>
-              <div style={{ flex: 1 }}>
+              <div style={{ width: 110, flex: "none" }}>
                 <div style={{ aspectRatio: "1", borderRadius: "var(--radius-md)", overflow: "hidden", marginBottom: 4 }}>
                   <PublicImageSlot slotKey={`qr-${app._id}-android`} placeholder="Android QR code" />
                 </div>
