@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import MediaSlotTile from "@/components/MediaSlotTile";
 import AppEditorCard from "@/components/AppEditorCard";
+import ChangePasswordForm from "@/components/ChangePasswordForm";
 
-type Section = "dashboard" | "content" | "services" | "apps" | "bookings" | "media";
+type Section = "dashboard" | "content" | "services" | "apps" | "bookings" | "media" | "settings";
 
 const NAV: { key: Section; label: string }[] = [
   { key: "dashboard", label: "Dashboard" },
@@ -18,6 +19,7 @@ const NAV: { key: Section; label: string }[] = [
   { key: "apps", label: "Mobile Apps" },
   { key: "bookings", label: "Bookings" },
   { key: "media", label: "Media Library" },
+  { key: "settings", label: "Settings" },
 ];
 
 const INQUIRY_TYPE_LABELS: Record<string, string> = {
@@ -333,6 +335,13 @@ export default function AdminClient() {
               <MediaSlotTile slotKey="chair-photo" label="Chairwoman photo" />
               <MediaSlotTile slotKey="general-1" label="Add new asset" />
             </div>
+          </>
+        )}
+
+        {section === "settings" && (
+          <>
+            <h2 style={{ marginBottom: "var(--space-4)" }}>Settings</h2>
+            <ChangePasswordForm />
           </>
         )}
       </main>
