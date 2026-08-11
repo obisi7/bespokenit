@@ -2,7 +2,66 @@
 
 import { useState } from "react";
 import { useAction } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
+
+const MIN_PASSWORD_LENGTH = 8;
+
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete,
+  hint,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete: string;
+  hint?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      <div style={{ position: "relative" }}>
+        <input
+          id={id}
+          type={visible ? "text" : "password"}
+          className="input"
+          required
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          style={{ paddingRight: 56 }}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          className="btn btn-ghost"
+          style={{
+            position: "absolute",
+            right: 2,
+            top: 2,
+            bottom: 2,
+            padding: "0 10px",
+            fontSize: 12,
+          }}
+        >
+          {visible ? "Hide" : "Show"}
+        </button>
+      </div>
+      {hint && (
+        <p className="text-muted" style={{ fontSize: 11, margin: "4px 0 0" }}>
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function ChangePasswordForm() {
   const changePassword = useAction(api.account.changePassword);
@@ -15,10 +74,16 @@ export default function ChangePasswordForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(`New password must be at least ${MIN_PASSWORD_LENGTH} characters long.`);
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setError("New password and confirmation don't match.");
       return;
     }
+
     setStatus("saving");
     try {
       await changePassword({ currentPassword, newPassword });
@@ -26,8 +91,8 @@ export default function ChangePasswordForm() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch {
-      setError("Current password is incorrect, or the new one is too short (8+ characters).");
+    } catch (err) {
+      setError(err instanceof ConvexError ? (err.data as string) : "Something went wrong. Please try again.");
       setStatus("idle");
     }
   };
@@ -38,53 +103,37 @@ export default function ChangePasswordForm() {
         Change password
       </h4>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-        <div className="field">
-          <label htmlFor="cur-pw">Current password</label>
-          <input
-            id="cur-pw"
-            type="password"
-            className="input"
-            required
-            value={currentPassword}
-            onChange={(e) => {
-              setCurrentPassword(e.target.value);
-              setStatus("idle");
-            }}
-            autoComplete="current-password"
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="new-pw">New password</label>
-          <input
-            id="new-pw"
-            type="password"
-            className="input"
-            required
-            minLength={8}
-            value={newPassword}
-            onChange={(e) => {
-              setNewPassword(e.target.value);
-              setStatus("idle");
-            }}
-            autoComplete="new-password"
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="confirm-pw">Confirm new password</label>
-          <input
-            id="confirm-pw"
-            type="password"
-            className="input"
-            required
-            minLength={8}
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              setStatus("idle");
-            }}
-            autoComplete="new-password"
-          />
-        </div>
+        <PasswordField
+          id="cur-pw"
+          label="Current password"
+          value={currentPassword}
+          onChange={(v) => {
+            setCurrentPassword(v);
+            setStatus("idle");
+          }}
+          autoComplete="current-password"
+        />
+        <PasswordField
+          id="new-pw"
+          label="New password"
+          value={newPassword}
+          onChange={(v) => {
+            setNewPassword(v);
+            setStatus("idle");
+          }}
+          autoComplete="new-password"
+          hint={`At least ${MIN_PASSWORD_LENGTH} characters. No other format required — letters, numbers, symbols, spaces all fine.`}
+        />
+        <PasswordField
+          id="confirm-pw"
+          label="Confirm new password"
+          value={confirmPassword}
+          onChange={(v) => {
+            setConfirmPassword(v);
+            setStatus("idle");
+          }}
+          autoComplete="new-password"
+        />
         {error && (
           <p style={{ color: "var(--color-accent-2-700)", fontSize: 13, margin: 0 }}>{error}</p>
         )}
