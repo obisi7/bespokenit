@@ -11,7 +11,7 @@ const DEFAULT_SERVICES = [
   { name: "Virginia SOL Prep", category: "Exam Prep", active: true },
   { name: "SAT Prep", category: "Exam Prep", active: true },
   { name: "Lesson Plan Development", category: "Educator Support", active: true },
-  { name: "IEP Navigation", category: "Special Education", active: false },
+  { name: "IEP Navigation", category: "Special Education", active: true },
 ];
 
 export const list = query({
@@ -57,6 +57,18 @@ export const add = mutation({
       active: true,
       order: existing.length,
     });
+  },
+});
+
+export const setActiveByName = internalMutation({
+  args: { name: v.string(), active: v.boolean() },
+  handler: async (ctx, { name, active }) => {
+    const service = await ctx.db
+      .query("services")
+      .filter((q) => q.eq(q.field("name"), name))
+      .first();
+    if (!service) throw new Error(`Service "${name}" not found`);
+    await ctx.db.patch(service._id, { active });
   },
 });
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { api } from "@/convex/_generated/api";
 import MediaSlotTile from "@/components/MediaSlotTile";
 import AppEditorCard from "@/components/AppEditorCard";
@@ -82,32 +83,13 @@ export default function AdminClient() {
             gap: 8,
           }}
         >
-          <span style={{ position: "relative", width: 18, height: 18, flex: "none" }}>
-            <span
-              style={{
-                position: "absolute",
-                left: 0,
-                top: 2,
-                width: 12,
-                height: 12,
-                borderRadius: "50%",
-                background: "var(--color-accent)",
-                mixBlendMode: "multiply",
-              }}
-            />
-            <span
-              style={{
-                position: "absolute",
-                right: 0,
-                top: 4,
-                width: 12,
-                height: 12,
-                borderRadius: "50%",
-                background: "var(--color-accent-2)",
-                mixBlendMode: "multiply",
-              }}
-            />
-          </span>
+          <Image
+            src="/assets/logo-seal-transparent.png"
+            alt=""
+            width={28}
+            height={28}
+            style={{ height: 28, width: 28, objectFit: "contain", flex: "none" }}
+          />
           Admin Portal
         </div>
         {NAV.map((n) => (

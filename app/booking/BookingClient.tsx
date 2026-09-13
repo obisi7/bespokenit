@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -47,6 +48,10 @@ export default function BookingClient() {
   const createBooking = useMutation(api.bookings.create);
   const [inquiry, setInquiry] = useState<Inquiry>("it");
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
+  const takenSlots = useQuery(
+    api.bookings.byDay,
+    selectedDayKey ? { dayKey: selectedDayKey } : "skip"
+  );
   const [selectedDayLabel, setSelectedDayLabel] = useState("");
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -80,8 +85,13 @@ export default function BookingClient() {
         phone: phone || undefined,
       });
       setSubmitted(true);
-    } catch {
-      setError("Something went wrong submitting your booking. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof ConvexError && typeof err.data === "string"
+          ? err.data
+          : "Something went wrong submitting your booking. Please try again."
+      );
+      setSelectedSlot(null);
     } finally {
       setSubmitting(false);
     }
@@ -154,15 +164,22 @@ export default function BookingClient() {
               <>
                 <h6 style={{ marginBottom: "var(--space-2)" }}>3. Pick a time</h6>
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: "var(--space-6)" }}>
-                  {SLOT_LABELS.map((label) => (
-                    <button
-                      key={label}
-                      className={`btn ${selectedSlot === label ? "btn-primary" : "btn-secondary"}`}
-                      onClick={() => setSelectedSlot(label)}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  {SLOT_LABELS.map((label) => {
+                    const isTaken = takenSlots?.includes(label) ?? false;
+                    return (
+                      <button
+                        key={label}
+                        className={`btn ${selectedSlot === label ? "btn-primary" : "btn-secondary"}`}
+                        onClick={() => setSelectedSlot(label)}
+                        disabled={isTaken}
+                        title={isTaken ? "Already booked" : undefined}
+                        style={isTaken ? { textDecoration: "line-through", opacity: 0.5 } : undefined}
+                      >
+                        {label}
+                        {isTaken ? " · Booked" : ""}
+                      </button>
+                    );
+                  })}
                 </div>
               </>
             )}

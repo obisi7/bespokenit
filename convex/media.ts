@@ -36,10 +36,14 @@ export const listForAdmin = query({
     if (!userId) throw new Error("Not authenticated");
     const items = await ctx.db.query("media").collect();
     return await Promise.all(
-      items.map(async (item) => ({
-        ...item,
-        url: await ctx.storage.getUrl(item.storageId),
-      }))
+      items.map(async (item) => {
+        const meta = await ctx.db.system.get(item.storageId);
+        return {
+          ...item,
+          url: await ctx.storage.getUrl(item.storageId),
+          contentType: meta?.contentType ?? null,
+        };
+      })
     );
   },
 });
@@ -52,6 +56,11 @@ export const getBySlot = query({
       .withIndex("by_slot", (q) => q.eq("slotKey", slotKey))
       .unique();
     if (!item) return null;
-    return { url: await ctx.storage.getUrl(item.storageId), label: item.label };
+    const meta = await ctx.db.system.get(item.storageId);
+    return {
+      url: await ctx.storage.getUrl(item.storageId),
+      label: item.label,
+      contentType: meta?.contentType ?? null,
+    };
   },
 });

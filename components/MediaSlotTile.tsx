@@ -45,12 +45,23 @@ export default function MediaSlotTile({ slotKey, label }: { slotKey: string; lab
         aria-label={`Upload ${label}`}
       >
         {media?.url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={media.url}
-            alt={label}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
+          media.contentType?.startsWith("video/") ? (
+            <video
+              src={media.url}
+              muted
+              loop
+              autoPlay
+              playsInline
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={media.url}
+              alt={label}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          )
         ) : (
           <ImageSlot placeholder={uploading ? "Uploading…" : label} />
         )}
@@ -58,7 +69,7 @@ export default function MediaSlotTile({ slotKey, label }: { slotKey: string; lab
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/mp4"
         style={{ display: "none" }}
         onChange={(e) => {
           const file = e.target.files?.[0];

@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
@@ -8,6 +8,19 @@ const INQUIRY_LABELS: Record<string, string> = {
   tutoring: "a Tutoring Trial",
   iep: "an IEP Review",
 };
+
+export const byDay = query({
+  args: { dayKey: v.string() },
+  handler: async (ctx, { dayKey }) => {
+    const bookings = await ctx.db
+      .query("bookings")
+      .filter((q) => q.eq(q.field("dayKey"), dayKey))
+      .collect();
+    return bookings
+      .filter((b) => b.status !== "cancelled")
+      .map((b) => b.slot);
+  },
+});
 
 export const create = mutation({
   args: {
@@ -20,6 +33,16 @@ export const create = mutation({
     phone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query("bookings")
+      .filter((q) => q.eq(q.field("dayKey"), args.dayKey))
+      .collect();
+    const taken = existing.some(
+      (b) => b.slot === args.slot && b.status !== "cancelled"
+    );
+    if (taken) {
+      throw new ConvexError("That time slot was just booked. Please pick another.");
+    }
     const id = await ctx.db.insert("bookings", { ...args, status: "confirmed" });
     await ctx.scheduler.runAfter(0, internal.email.sendBookingConfirmation, {
       email: args.email,
