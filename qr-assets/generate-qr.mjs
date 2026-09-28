@@ -26,6 +26,11 @@ const APPS = [
     ios: "https://testflight.apple.com/join/ATjfNdsF",
     android: "https://play.google.com/apps/testing/com.bespokenit.ekoguide",
   },
+  {
+    dir: "armor-of-light",
+    ios: "https://testflight.apple.com/join/5rgt5Bhk",
+    android: "https://play.google.com/apps/internaltest/4701570881160558189",
+  },
 ];
 
 for (const app of APPS) {
