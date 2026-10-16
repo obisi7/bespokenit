@@ -29,7 +29,12 @@ const APPS = [
   {
     dir: "armor-of-light",
     ios: "https://testflight.apple.com/join/5rgt5Bhk",
-    android: "https://play.google.com/apps/internaltest/4701570881160558189",
+    android: "https://play.google.com/store/apps/details?id=com.bespokenit.armoroflight",
+  },
+  {
+    dir: "bible-builders",
+    ios: "https://testflight.apple.com/join/BUkSpgGX",
+    android: "https://play.google.com/store/apps/details?id=com.bespokenit.biblebuilders",
   },
 ];
 
